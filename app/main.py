@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
-from app.routers import api_keys_router, auth_router, projects_router
+from app.routers import auth_router, projects_router
 
 logger = logging.getLogger(__name__)
 
@@ -32,17 +32,13 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 app = FastAPI(
     title="Hackaton API",
     description=(
-        "**Authentication:** This API supports two authentication methods:\n\n"
-        "- **JWT Bearer token** — Obtain a token via `POST /auth/login` and pass it as "
-        "`Authorization: Bearer <token>`\n"
-        "- **API Key** — Create a key via `POST /api-keys` and pass it as `X-API-Key: <key>`\n\n"
-        "Both methods grant access to the same set of endpoints."
+        "**Authentication:** Obtain a token via `POST /auth/login` and pass it as "
+        "`Authorization: Bearer <token>`"
     ),
     version="1.0.0",
     lifespan=lifespan,
     openapi_tags=[
         {"name": "Authentication", "description": "Register, login, and get current user info."},
-        {"name": "API Keys", "description": "Create and manage long-lived API keys."},
         {"name": "Projects", "description": "Create and manage projects."},
     ],
 )
@@ -60,7 +56,6 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
-app.include_router(api_keys_router)
 app.include_router(projects_router)
 
 
