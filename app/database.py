@@ -3,6 +3,7 @@ from urllib.parse import urlparse, urlencode, parse_qs, urlunparse
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.pool import NullPool
 
 from app.config import settings
 
@@ -31,7 +32,12 @@ def _clean_db_url(url: str) -> tuple[str, dict]:
 
 
 _db_url, _connect_args = _clean_db_url(settings.DATABASE_URL)
-engine = create_async_engine(_db_url, echo=False, connect_args=_connect_args)
+engine = create_async_engine(
+    _db_url,
+    echo=False,
+    connect_args=_connect_args,
+    poolclass=NullPool,  # required for serverless: no shared connections across event loops
+)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
 
